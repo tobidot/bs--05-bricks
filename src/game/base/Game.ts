@@ -31,11 +31,20 @@ export class Game {
         this.model = new GameModel(context);
         this.controller = new GameController(this.model);
         this.keyboard = new tgt.KeyboardHandler(app, () => this.controller);
+        this.app.addEventListener('mousemove', (event) => {
+            if (!(event.target instanceof HTMLElement)) return ;
+            const rect = canvas.getBoundingClientRect();
+            const x = (event.clientX - rect.left) / rect.width * canvas.width; //x position within the element.
+            const y = (event.clientY - rect.top) / rect.height * canvas.height;  //y position within the element.
+            if (this.model.paddle) {
+                this.model.paddle.hit_box.center.x = x ;
+            }
+        });
     }
 
     protected update(delta_ms: number) {
-        this.controller.update(delta_ms);
-        this.view.update(delta_ms);
+        this.controller.update(delta_ms / 1000);
+        this.view.update(delta_ms  / 1000);
         this.view.render(this.model);
     }
 

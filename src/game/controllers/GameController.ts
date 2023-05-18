@@ -1,10 +1,11 @@
-import { KeyboardEvent, KeyboardController, KeyboardHandler, KeyName } from "../../library";
+import { KeyboardEvent, KeyboardController, KeyboardHandler, KeyName, assert } from "../../library";
 import { Controller } from "../../library/abstract/mvc/Controller";
 import { ControllerResponse } from "../../library/abstract/mvc/Response";
-import { Game } from "../base/Game";
-import { Entity } from "../models/Entity";
+import { Vector2D } from "../../library/math";
+import { Ball } from "../models/Ball";
+import { Brick } from "../models/Brick";
 import { GameModel } from "../models/GameModel";
-import { GameView } from "../views/GameView";
+import { Paddle } from "../models/Paddle";
 
 export class GameController implements Controller, KeyboardController {
 
@@ -18,6 +19,20 @@ export class GameController implements Controller, KeyboardController {
      */
     public newGame(): ControllerResponse {
         this.model.restart();
+        for (let x = 0; x < 10; x++) {
+            for (let y = 0; y < 5; y++) {
+                const brick = new Brick(new Vector2D(x * 80 + 40, 150 + y * 25));
+                this.model.addEntity(brick);
+            }
+        }
+        
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 3; y++) {
+                const brick = new Brick(new Vector2D(x * 80 + 120, 400 + y * 25));
+                this.model.addEntity(brick);
+            }
+        }
+        this.model.addEntity(this.model.paddle = new Paddle(new Vector2D(400, 550)));
         return null;
     }
 
@@ -34,7 +49,14 @@ export class GameController implements Controller, KeyboardController {
      * @returns 
      */
     public update(delta_seconds: number): ControllerResponse {
+        assert(!!this.model.paddle, "No paddle found");
         this.model.update(delta_seconds);
+        if (this.model.hasNoBalls() && !this.model.paddle.has_ball) {
+            this.model.lives--;
+            if (this.model.lives > 0) {
+                this.model.paddle.has_ball = true;
+            } 
+        }
         return null;
     }
 
@@ -52,15 +74,16 @@ export class GameController implements Controller, KeyboardController {
                 case KeyName.KeyD:
                     this.model.debug = !this.model.debug;
                     return;
+                case KeyName.Enter:
+                    window.game.app.requestFullscreen();
+                    return;
             }
         }
-        if (event.key.name === KeyName.Space) {
-            const entity = this.model.createEntity("O");
-            entity.color = ["red", "green", "blue", "yellow", "orange", "purple"][Math.floor(Math.random() * 6)];
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 100 + 50;
-            entity.velocity.x = Math.cos(angle) * speed;
-            entity.velocity.y = Math.sin(angle) * speed;
+        if (event.key.name === KeyName.Space && this.model.paddle && this.model.paddle.has_ball) {
+            const position = this.model.paddle.hit_box.center.cpy().add(new Vector2D(0, -20));
+            const entity = new Ball(position);
+            this.model.addEntity(entity);
+            this.model.paddle.has_ball = false;
         }
     }
 }
