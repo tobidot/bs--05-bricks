@@ -15,13 +15,6 @@ export class Paddle extends Entity {
         this.render_box.size.set({x:100,y:20});
     }
 
-    public update(delta_seconds: number): void {
-        super.update(delta_seconds);        
-    }
-
-    public onCollision(other: PhysicsProxy, collision: Collision): void {
-    }
-
     public increaseSize(): void {
         this.hit_box.size.x += 10;
         this.render_box.size.x += 10;

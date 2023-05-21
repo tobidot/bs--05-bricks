@@ -3,7 +3,7 @@ import { Vector2D } from "../../library/math";
 import { Rect } from "../../library/math/Rect";
 import { Collision, PhysicsProxiable, PhysicsProxy } from "../../library/physics/Physics";
 
-export abstract class Entity implements PhysicsProxiable {
+export class Entity implements PhysicsProxiable {
     public static next_id = 1;
     public id: number = Entity.next_id++;
     // physics properties
@@ -40,8 +40,6 @@ export abstract class Entity implements PhysicsProxiable {
         this.render_box.center.set(this.physics.outerBox.center);
     }
 
-    /**
-     * 
-     **/
-    public abstract onCollision?(other: PhysicsProxy, collision: Collision): void;
+    public onCollision?(other: PhysicsProxy, collision: Collision): void;
+    public onWorlCollision?(distance: Vector2D) : void;
 }

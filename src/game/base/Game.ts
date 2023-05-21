@@ -10,6 +10,7 @@ import { registerAssets } from "./Assets";
 export class Game {
     public assets: tgt.AssetManager;
     public keyboard: tgt.KeyboardHandler;
+    public mouse: tgt.MouseHandler;
     public controller: GameController;
     public view: GameView;
     public model: GameModel;
@@ -31,15 +32,7 @@ export class Game {
         this.model = new GameModel(context);
         this.controller = new GameController(this.model);
         this.keyboard = new tgt.KeyboardHandler(app, () => this.controller);
-        this.app.addEventListener('mousemove', (event) => {
-            if (!(event.target instanceof HTMLElement)) return ;
-            const rect = canvas.getBoundingClientRect();
-            const x = (event.clientX - rect.left) / rect.width * canvas.width; //x position within the element.
-            const y = (event.clientY - rect.top) / rect.height * canvas.height;  //y position within the element.
-            if (this.model.paddle) {
-                this.model.paddle.hit_box.center.x = x ;
-            }
-        });
+        this.mouse = new tgt.MouseHandler(app, canvas, () => this.controller);
     }
 
     protected update(delta_ms: number) {
@@ -65,6 +58,7 @@ export class Game {
      */
     public async init() {
         this.keyboard.init();
+        this.mouse.init();
     }
 
     /**

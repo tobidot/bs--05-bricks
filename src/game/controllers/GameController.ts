@@ -1,4 +1,4 @@
-import { KeyboardEvent, KeyboardController, KeyboardHandler, KeyName, assert } from "../../library";
+import { KeyboardEvent, KeyboardController, KeyboardHandler, KeyName, assert, MouseController, MouseDownEvent, MouseMoveEvent, MouseUpEvent } from "../../library";
 import { Controller } from "../../library/abstract/mvc/Controller";
 import { ControllerResponse } from "../../library/abstract/mvc/Response";
 import { Vector2D } from "../../library/math";
@@ -7,7 +7,7 @@ import { Brick } from "../models/Brick";
 import { GameModel } from "../models/GameModel";
 import { Paddle } from "../models/Paddle";
 
-export class GameController implements Controller, KeyboardController {
+export class GameController implements Controller, KeyboardController, MouseController {
 
     public constructor(
         public model: GameModel,
@@ -25,7 +25,7 @@ export class GameController implements Controller, KeyboardController {
                 this.model.addEntity(brick);
             }
         }
-        
+
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 3; y++) {
                 const brick = new Brick(new Vector2D(x * 80 + 120, 400 + y * 25));
@@ -55,7 +55,10 @@ export class GameController implements Controller, KeyboardController {
             this.model.lives--;
             if (this.model.lives > 0) {
                 this.model.paddle.has_ball = true;
-            } 
+            }
+        }
+        if (this.model.paddle) {
+            this.model.paddle.hit_box.center.x = game.mouse.position.x;;
         }
         return null;
     }
@@ -86,4 +89,8 @@ export class GameController implements Controller, KeyboardController {
             this.model.paddle.has_ball = false;
         }
     }
+
+    public onMouseMove?(event: MouseMoveEvent): void;
+    public onMouseDown?(event: MouseDownEvent): void;
+    public onMouseUp?(event: MouseUpEvent): void;
 }
